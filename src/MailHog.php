@@ -447,10 +447,10 @@ class MailHog extends Module
     {
         if ((string) $property !== '') {
             if (!empty($email->Content->Headers->{'Content-Transfer-Encoding'}) && in_array(
-                'quoted-printable',
-                $email->Content->Headers->{'Content-Transfer-Encoding'},
-                true
-            )
+                    'quoted-printable',
+                    $email->Content->Headers->{'Content-Transfer-Encoding'},
+                    true
+                )
             ) {
                 $property = quoted_printable_decode($property);
             }
@@ -459,7 +459,7 @@ class MailHog extends Module
             ) {
                 $property = quoted_printable_decode($property);
             }
-            if (strpos($property, '=?utf-8?Q?') !== false && extension_loaded('mbstring')) {
+            if (stripos($property, '=?utf-8?Q?') !== false && extension_loaded('mbstring')) {
                 $property = mb_decode_mimeheader($property);
             }
         }
