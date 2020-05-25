@@ -1,5 +1,5 @@
 {
-    "name": "ericmartel/codeception-email-mailhog",
+    "name": "lamoda/codeception-email-mailhog",
     "description": "Provides test helpers for Codeception when testing email functionality with MailHog",
     "license": "MIT",
     "authors": [
@@ -13,7 +13,7 @@
         }
     ],
     "require": {
-        "php": "~7.2",
+        "php": "^7.2",
         "guzzlehttp/guzzle": "^6.1",
         "ext-json": "*"
     },

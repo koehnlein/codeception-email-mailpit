@@ -6,8 +6,8 @@ This Codeception Module implements the required methods to test emails using the
 Through composer, require the package:
 ```
 "require-dev": {
-        "ericmartel/codeception-email-mailhog": "^1.0"
-    }
+    "lamoda/codeception-email-mailhog": "^1.0"
+}
 ```
 Then turn it on in your Codeception suite yaml file
 ```
