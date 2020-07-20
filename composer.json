@@ -23,6 +23,10 @@
         "ericmartel/codeception-email": "^1.0",
         "friendsofphp/php-cs-fixer": "^2.15.0"
     },
+    "suggest": {
+        "ext-iconv": "Will be used as a mime decoder (iconv_mime_decode)",
+        "ext-mbstring": "Will be used as a mime decoder if ext-iconv is not installed (mb_decode_mimeheader)"
+    },
     "autoload": {
         "psr-4": {
             "Codeception\\Module\\": "src"
