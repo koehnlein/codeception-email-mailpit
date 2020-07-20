@@ -459,8 +459,12 @@ class MailHog extends Module
             ) {
                 $property = quoted_printable_decode($property);
             }
-            if (stripos($property, '=?utf-8?Q?') !== false && extension_loaded('mbstring')) {
-                $property = mb_decode_mimeheader($property);
+            if (stripos($property, '=?utf-8?Q?') !== false) {
+                if (extension_loaded('iconv')) {
+                    $property = iconv_mime_decode($property);
+                } elseif (extension_loaded('mbstring')) {
+                    $property = mb_decode_mimeheader($property);
+                }
             }
         }
 
