@@ -6,7 +6,7 @@ This Codeception Module implements the required methods to test emails using the
 Through composer, require the package:
 ```
 "require-dev": {
-    "lamoda/codeception-email-mailhog": "^1.0"
+    "oqq/codeception-email-mailhog": "^2.0"
 }
 ```
 Then turn it on in your Codeception suite yaml file
@@ -45,7 +45,7 @@ Pops the most recent unread email and assigns it as the email to conduct tests o
 ### Example Test
 Here is a simple scenario where we test the content of an email.  For a detailed list of all available test methods, please refer to the [Codeception Email Testing Framework][CodeceptionEmailTestingFramework].
 ```
-<?php 
+<?php
 $I = new FunctionalTester($scenario);
 $I->am('a member');
 $I->wantTo('request a reset password link');

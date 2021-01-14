@@ -1,10 +1,4 @@
-# Dev
-.idea
-composer.lock
 vendor/
-
-# CI runtime
-build/
-target/
 .php_cs.cache
 .phpunit.result.cache
+composer.lock
