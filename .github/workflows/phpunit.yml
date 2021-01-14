@@ -10,12 +10,37 @@ jobs:
   build-test:
     runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v1
-    - uses: php-actions/composer@v1 # or alternative dependency management
+    strategy:
+      matrix:
+        php-version:
+          - "7.3"
+          - "7.4"
+          - "8.0"
+        dependencies:
+          - "highest"
+          - "lowest"
 
-    # Run unit
-    - name: PHPUnit (php-actions)
-      uses: php-actions/phpunit@v1
-      with:
-        config: phpunit.xml
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v2"
+        with:
+          fetch-depth: 2
+
+      - name: "Install PHP"
+        uses: "shivammathur/setup-php@v2"
+        with:
+          php-version: "${{ matrix.php-version }}"
+          coverage: pcov
+          ini-values: memory_limit=-1
+          tools: composer:v2
+
+      - name: "Install dependencies (highest)"
+        if: ${{ matrix.dependencies == 'highest' }}
+        run: "composer update --prefer-dist --no-interaction --no-progress"
+
+      - name: "Install dependencies (lowest)"
+        if: ${{ matrix.dependencies == 'lowest' }}
+        run: "composer update --prefer-lowest --prefer-dist --no-interaction --no-progress"
+
+      - name: "Run PHPUnit"
+        run: "vendor/bin/phpunit"
