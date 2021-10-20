@@ -445,27 +445,32 @@ class MailHog extends Module
      */
     protected function getDecodedEmailProperty($email, $property): string
     {
-        if ((string) $property !== '') {
-            if (!empty($email->Content->Headers->{'Content-Transfer-Encoding'}) && in_array(
-                    'quoted-printable',
-                    $email->Content->Headers->{'Content-Transfer-Encoding'},
-                    true
-                )
-            ) {
-                $property = quoted_printable_decode($property);
+        if ($property !== '') {
+            return $property;
+        }
+
+        if (stripos($property, '=?utf-8?Q?') !== false) {
+            if (extension_loaded('iconv')) {
+                return iconv_mime_decode($property);
             }
-            if (!empty($email->Content->Headers->{'Content-Type'}[0]) &&
-                strpos($email->Content->Headers->{'Content-Type'}[0], 'multipart/mixed') !== false
-            ) {
-                $property = quoted_printable_decode($property);
+            if (extension_loaded('mbstring')) {
+                return mb_decode_mimeheader($property);
             }
-            if (stripos($property, '=?utf-8?Q?') !== false) {
-                if (extension_loaded('iconv')) {
-                    $property = iconv_mime_decode($property);
-                } elseif (extension_loaded('mbstring')) {
-                    $property = mb_decode_mimeheader($property);
-                }
-            }
+        }
+
+        if (!empty($email->Content->Headers->{'Content-Transfer-Encoding'}) && in_array(
+            'quoted-printable',
+            $email->Content->Headers->{'Content-Transfer-Encoding'},
+            true
+        )
+        ) {
+            return quoted_printable_decode($property);
+        }
+
+        if (!empty($email->Content->Headers->{'Content-Type'}[0]) &&
+            strpos($email->Content->Headers->{'Content-Type'}[0], 'multipart/mixed') !== false
+        ) {
+            return quoted_printable_decode($property);
         }
 
         return $property;
