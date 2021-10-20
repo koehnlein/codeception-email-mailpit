@@ -459,10 +459,10 @@ class MailHog extends Module
         }
 
         if (!empty($email->Content->Headers->{'Content-Transfer-Encoding'}) && in_array(
-                'quoted-printable',
-                $email->Content->Headers->{'Content-Transfer-Encoding'},
-                true
-            )
+            'quoted-printable',
+            $email->Content->Headers->{'Content-Transfer-Encoding'},
+            true
+        )
         ) {
             return quoted_printable_decode($property);
         }

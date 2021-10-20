@@ -17,16 +17,16 @@
         }
     ],
     "require": {
-        "php": "7.3.* | 7.4.* | 8.0.*",
+        "php": "7.4.* | 8.0.*",
         "ext-json": "*",
         "ericmartel/codeception-email": "^1.0.3",
         "guzzlehttp/guzzle": "^6.1 | ^7.0"
     },
     "require-dev": {
         "codeception/codeception": "^4.0",
-        "friendsofphp/php-cs-fixer": "^2.15",
-        "phpunit/phpunit": "^8.0",
-        "roave/security-advisories": "dev-master"
+        "friendsofphp/php-cs-fixer": "^3.0",
+        "phpunit/phpunit": "^9.5",
+        "roave/security-advisories": "dev-latest"
     },
     "suggest": {
         "ext-iconv": "Will be used as a mime decoder (iconv_mime_decode)",
