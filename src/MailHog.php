@@ -445,7 +445,7 @@ class MailHog extends Module
      */
     protected function getDecodedEmailProperty($email, $property): string
     {
-        if ($property !== '') {
+        if ($property === '') {
             return $property;
         }
 
