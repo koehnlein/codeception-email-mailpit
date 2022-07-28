@@ -24,10 +24,8 @@ class MailHog extends Module
 
     /**
      * Codeception exposed variables.
-     *
-     * @var array
      */
-    protected $config = [
+    protected array $config = [
         'url',
         'port',
         'guzzleRequestOptions',
@@ -37,45 +35,33 @@ class MailHog extends Module
 
     /**
      * Codeception required variables.
-     *
-     * @var array
      */
-    protected $requiredFields = ['url', 'port'];
+    protected array $requiredFields = ['url', 'port'];
 
     /**
      * HTTP Client to interact with MailHog.
-     *
-     * @var Client
      */
-    protected $mailhog;
+    protected Client $mailhog;
 
     /**
      * Raw email header data converted to JSON.
-     *
-     * @var array
      */
-    protected $fetchedEmails;
+    protected array $fetchedEmails;
 
     /**
      * Currently selected set of email headers to work with.
-     *
-     * @var array
      */
-    protected $currentInbox;
+    protected array $currentInbox;
 
     /**
      * Starts as the same data as the current inbox, but items are removed as they're used.
-     *
-     * @var array
      */
-    protected $unreadInbox;
+    protected array $unreadInbox;
 
     /**
      * Contains the currently open email on which test operations are conducted.
-     *
-     * @var mixed
      */
-    protected $openedEmail;
+    protected mixed $openedEmail;
 
     public function _initialize(): void
     {
