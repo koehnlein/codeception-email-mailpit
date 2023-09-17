@@ -10,8 +10,6 @@
 
 namespace Codeception\Module;
 
-use Codeception\Email\EmailServiceProvider;
-use Codeception\Email\TestsEmails;
 use Codeception\Module;
 use Codeception\TestInterface;
 use Exception;
@@ -20,7 +18,6 @@ use GuzzleHttp\Client;
 class MailHog extends Module
 {
     use TestsEmails;
-    use EmailServiceProvider;
 
     /**
      * Codeception exposed variables.
