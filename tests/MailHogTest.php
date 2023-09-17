@@ -107,6 +107,15 @@ JSON;
 }
 JSON;
 
+    private static $singleHeaderJson = <<<JSON
+{
+    "X-Priority": [
+        "high"
+    ]
+}
+JSON;
+
+
     /** @var MockObject&MailHog */
     private $mailHog;
 
@@ -287,8 +296,6 @@ JSON;
 
     public function testOpenNextUnreadEmailPositive(): void
     {
-        $this->mailHog->setUnreadInbox(json_decode(self::$allMessagesJson, false)->messages);
-
         $client = $this->buildClient();
         $this->mailHog->setClient($client);
         $this->mailHog->fetchEmails();
@@ -306,6 +313,19 @@ JSON;
         $this->expectExceptionMessage('Unread Inbox is Empty');
 
         $this->mailHog->openNextUnreadEmail();
+    }
+
+    public function testGrabHeaderFromOpenedEmail()
+    {
+        $client = $this->buildClient();
+        $this->mailHog->setClient($client);
+        $this->mailHog->fetchEmails();
+        $this->mailHog->openNextUnreadEmail();
+
+        self::assertSame(
+            [0 => 'high'],
+            $this->mailHog->grabHeaderFromOpenedEmail('X-Priority')
+        );
     }
 
     protected function setUp(): void
@@ -373,6 +393,14 @@ JSON;
             ->method('getBody')
             ->willReturn((new StreamFactory())->createStream(self::$singleMessageJson));
 
+        /** @var MockObject&ResponseInterface $singleHeaderResponse */
+        $singleHeaderResponse = $this->getMockBuilder(ResponseInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $singleHeaderResponse
+            ->method('getBody')
+            ->willReturn((new StreamFactory())->createStream(self::$singleHeaderJson));
+
         /** @var MockObject&ClientInterface $client */
         $client = $this->getMockBuilder(Client::class)
             ->disableOriginalConstructor()
@@ -380,12 +408,14 @@ JSON;
         $client
             ->method('request')
             ->willReturnCallback(
-                function (string $method, string $url) use ($allMessagesResponse, $singleMessageResponse): ResponseInterface {
+                function (string $method, string $url) use ($allMessagesResponse, $singleMessageResponse, $singleHeaderResponse): ResponseInterface {
                     switch ($url) {
                         case '/api/v1/messages':
                             return $allMessagesResponse;
-                        case '/api/v1/messages/fc5666d2-b7f2-4c53-a213-75029127887a':
+                        case '/api/v1/message/fc5666d2-b7f2-4c53-a213-75029127887a':
                             return $singleMessageResponse;
+                        case '/api/v1/message/fc5666d2-b7f2-4c53-a213-75029127887a/headers':
+                            return $singleHeaderResponse;
                     }
                 }
             );

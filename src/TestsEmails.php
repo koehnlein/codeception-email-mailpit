@@ -561,58 +561,6 @@ trait TestsEmails
     }
 
     /**
-     * See In Opened Email Priority
-     *
-     * Checks that the priority of the opened email contains $expected
-     *
-     * @param string $expected priority
-     */
-    public function seeInOpenedEmailPriority($expected)
-    {
-        $email = $this->getOpenedEmail();
-        $this->seeInEmailPriority($email, $expected);
-    }
-
-    /**
-     * Dont See In Opened Email Priority
-     *
-     * Checks that the priority of the opened email does not contain $expected
-     *
-     * @param string $expected priority
-     */
-    public function dontSeeInOpenedEmailPriority($expected)
-    {
-        $email = $this->getOpenedEmail();
-        $this->dontSeeInEmailPriority($email, $expected);
-    }
-
-    /**
-     * See In Email Priority
-     *
-     * Checks that the priority of $email contains $expected
-     *
-     * @param mixed $email a JSON encoded email
-     * @param string $expected priority
-     */
-    public function seeInEmailPriority($email, $expected)
-    {
-        $this->assertStringContainsString($expected, $this->getEmailPriority($email));
-    }
-
-    /**
-     * Dont See In Email Priority
-     *
-     * Checks that the priority of $email does not contain $expected
-     *
-     * @param mixed $email a JSON encoded email
-     * @param string $expected priority
-     */
-    public function dontSeeInEmailPriority($email, $expected)
-    {
-        $this->assertStringNotContainsString($expected, $this->getEmailPriority($email));
-    }
-
-    /**
      * Return plain text body from currently opened email
      */
     public function grabTextBodyFromEmail(): string
@@ -628,6 +576,15 @@ trait TestsEmails
     {
         $email = $this->getOpenedEmail();
         return $email->HTML ?? '';
+    }
+
+    /**
+     * Return specific header from currently opened email
+     */
+    public function grabHeaderFromOpenedEmail(string $header): array
+    {
+        $email = $this->getOpenedEmail();
+        return $this->getHeader($email, $header);
     }
 }
 
