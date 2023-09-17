@@ -1,13 +1,5 @@
 <?php
 
-/*
- * This file is part of the Mailhog service provider for the Codeception Email Testing Framework.
- * (c) 2015-2016 Eric Martel
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Codeception\Module;
 
 use Codeception\Module;
@@ -15,7 +7,7 @@ use Codeception\TestInterface;
 use Exception;
 use GuzzleHttp\Client;
 
-class MailHog extends Module
+class Mailpit extends Module
 {
     use TestsEmails;
 
@@ -36,9 +28,9 @@ class MailHog extends Module
     protected array $requiredFields = ['url', 'port'];
 
     /**
-     * HTTP Client to interact with MailHog.
+     * HTTP Client to interact with Mailpit.
      */
-    protected Client $mailhog;
+    protected Client $mailpit;
 
     /**
      * Raw email header data converted to JSON.
@@ -71,7 +63,7 @@ class MailHog extends Module
             }
         }
 
-        $this->mailhog = new Client($config);
+        $this->mailpit = new Client($config);
     }
 
     /**
@@ -94,7 +86,7 @@ class MailHog extends Module
         $this->fetchedEmails = [];
 
         try {
-            $response = $this->mailhog->request('GET', '/api/v1/messages');
+            $response = $this->mailpit->request('GET', '/api/v1/messages');
             $this->fetchedEmails = json_decode($response->getBody(), false)->messages;
         } catch (Exception $e) {
             $this->fail('Exception: ' . $e->getMessage());
@@ -193,7 +185,7 @@ class MailHog extends Module
     public function deleteAllEmails(): void
     {
         try {
-            $this->mailhog->request('DELETE', '/api/v1/messages');
+            $this->mailpit->request('DELETE', '/api/v1/messages');
         } catch (Exception $e) {
             $this->fail('Exception: ' . $e->getMessage());
         }
@@ -218,7 +210,7 @@ class MailHog extends Module
     {
         if (!isset($email->headers)) {
             try {
-                $response = $this->mailhog->request('GET', "/api/v1/message/{$email->ID}/headers");
+                $response = $this->mailpit->request('GET', "/api/v1/message/{$email->ID}/headers");
                 $email->headers = json_decode($response->getBody(), false);
             } catch (Exception $e) {
                 $this->fail('Exception: ' . $e->getMessage());
@@ -305,7 +297,7 @@ class MailHog extends Module
     protected function getFullEmail($id)
     {
         try {
-            $response = $this->mailhog->request('GET', "/api/v1/message/{$id}");
+            $response = $this->mailpit->request('GET', "/api/v1/message/{$id}");
             return json_decode($response->getBody(), false);
         } catch (Exception $e) {
             $this->fail('Exception: ' . $e->getMessage());

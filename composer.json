@@ -1,6 +1,6 @@
 {
-    "name": "oqq/codeception-email-mailhog",
-    "description": "Provides test helpers for Codeception when testing email functionality with MailHog",
+    "name": "koehnlein/codeception-email-mailpit",
+    "description": "Provides test helpers for Codeception when testing email functionality with Mailpit",
     "license": "MIT",
     "authors": [
         {
@@ -14,6 +14,10 @@
         {
             "name": "Eric Braun",
             "email": "eb@oqq.be"
+        },
+        {
+            "name": "Albrecht Köhnlein",
+            "email": "ak@koehnlein.eu"
         }
     ],
     "require": {

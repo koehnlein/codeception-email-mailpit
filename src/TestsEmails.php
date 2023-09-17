@@ -1,13 +1,5 @@
 <?php
 
-/*
- * This file is part of the Email test framework for Codeception.
- * (c) 2015-2016 Eric Martel
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Codeception\Module;
 
 // todo:

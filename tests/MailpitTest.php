@@ -3,7 +3,7 @@
 namespace Codeception\Module\Tests;
 
 use Codeception\Lib\ModuleContainer;
-use Codeception\Module\MailHog;
+use Codeception\Module\Mailpit;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use Http\Factory\Guzzle\StreamFactory;
@@ -12,7 +12,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 
-class MailHogTest extends TestCase
+class MailpitTest extends TestCase
 {
     private const URL = 'http://test';
     private const PORT = 8888;
@@ -116,17 +116,17 @@ JSON;
 JSON;
 
 
-    /** @var MockObject&MailHog */
-    private $mailHog;
+    /** @var MockObject&Mailpit */
+    private $mailpit;
 
     public function testFetchEmailsPositive(): void
     {
         $client = $this->buildClient();
-        $this->mailHog->setClient($client);
-        $this->mailHog->fetchEmails();
+        $this->mailpit->setClient($client);
+        $this->mailpit->fetchEmails();
 
-        $this->assertEquals(json_decode(self::$allMessagesJson, false)->messages, $this->mailHog->getCurrentInbox());
-        $this->assertEquals(json_decode(self::$allMessagesJson, false)->messages, $this->mailHog->getUnreadInbox());
+        $this->assertEquals(json_decode(self::$allMessagesJson, false)->messages, $this->mailpit->getCurrentInbox());
+        $this->assertEquals(json_decode(self::$allMessagesJson, false)->messages, $this->mailpit->getUnreadInbox());
     }
 
     public function testFetchEmailsNegative(): void
@@ -140,12 +140,12 @@ JSON;
             ->with('GET', '/api/v1/messages')
             ->willThrowException(new \Exception('Test exception'));
 
-        $this->mailHog->setClient($client);
+        $this->mailpit->setClient($client);
 
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage('Exception: Test exception');
 
-        $this->mailHog->fetchEmails();
+        $this->mailpit->fetchEmails();
     }
 
     /**
@@ -153,12 +153,12 @@ JSON;
      */
     public function testAccessInboxFor(string $address, array $expectedInbox): void
     {
-        $this->mailHog->setClient($this->buildClient());
-        $this->mailHog->fetchEmails();
-        $this->mailHog->accessInboxFor($address);
+        $this->mailpit->setClient($this->buildClient());
+        $this->mailpit->fetchEmails();
+        $this->mailpit->accessInboxFor($address);
 
-        self::assertEquals($expectedInbox, $this->mailHog->getCurrentInbox());
-        self::assertEquals($expectedInbox, $this->mailHog->getUnreadInbox());
+        self::assertEquals($expectedInbox, $this->mailpit->getCurrentInbox());
+        self::assertEquals($expectedInbox, $this->mailpit->getUnreadInbox());
     }
 
     public function dataAccessInboxFor(): iterable
@@ -186,12 +186,12 @@ JSON;
      */
     public function testAccessInboxForTo(string $address, array $expectedInbox): void
     {
-        $this->mailHog->setClient($this->buildClient());
-        $this->mailHog->fetchEmails();
-        $this->mailHog->accessInboxForTo($address);
+        $this->mailpit->setClient($this->buildClient());
+        $this->mailpit->fetchEmails();
+        $this->mailpit->accessInboxForTo($address);
 
-        self::assertEquals($expectedInbox, $this->mailHog->getCurrentInbox());
-        self::assertEquals($expectedInbox, $this->mailHog->getUnreadInbox());
+        self::assertEquals($expectedInbox, $this->mailpit->getCurrentInbox());
+        self::assertEquals($expectedInbox, $this->mailpit->getUnreadInbox());
     }
 
     public function dataAccessInboxForTo(): iterable
@@ -211,12 +211,12 @@ JSON;
      */
     public function testAccessInboxForCc(string $address, array $expectedInbox): void
     {
-        $this->mailHog->setClient($this->buildClient());
-        $this->mailHog->fetchEmails();
-        $this->mailHog->accessInboxForCc($address);
+        $this->mailpit->setClient($this->buildClient());
+        $this->mailpit->fetchEmails();
+        $this->mailpit->accessInboxForCc($address);
 
-        self::assertEquals($expectedInbox, $this->mailHog->getCurrentInbox());
-        self::assertEquals($expectedInbox, $this->mailHog->getUnreadInbox());
+        self::assertEquals($expectedInbox, $this->mailpit->getCurrentInbox());
+        self::assertEquals($expectedInbox, $this->mailpit->getUnreadInbox());
     }
 
     public function dataAccessInboxForCc(): iterable
@@ -236,12 +236,12 @@ JSON;
      */
     public function testAccessInboxForBcc(string $address, array $expectedInbox): void
     {
-        $this->mailHog->setClient($this->buildClient());
-        $this->mailHog->fetchEmails();
-        $this->mailHog->accessInboxForBcc($address);
+        $this->mailpit->setClient($this->buildClient());
+        $this->mailpit->fetchEmails();
+        $this->mailpit->accessInboxForBcc($address);
 
-        self::assertEquals($expectedInbox, $this->mailHog->getCurrentInbox());
-        self::assertEquals($expectedInbox, $this->mailHog->getUnreadInbox());
+        self::assertEquals($expectedInbox, $this->mailpit->getCurrentInbox());
+        self::assertEquals($expectedInbox, $this->mailpit->getUnreadInbox());
     }
 
     public function dataAccessInboxForBcc(): iterable
@@ -271,8 +271,8 @@ JSON;
             ->with('DELETE', '/api/v1/messages')
             ->willReturn($response);
 
-        $this->mailHog->setClient($client);
-        $this->mailHog->deleteAllEmails();
+        $this->mailpit->setClient($client);
+        $this->mailpit->deleteAllEmails();
     }
 
     public function testDeleteAllEmailsNegative(): void
@@ -286,45 +286,45 @@ JSON;
             ->with('DELETE', '/api/v1/messages')
             ->willThrowException(new \Exception('Test exception'));
 
-        $this->mailHog->setClient($client);
+        $this->mailpit->setClient($client);
 
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage('Exception: Test exception');
 
-        $this->mailHog->deleteAllEmails();
+        $this->mailpit->deleteAllEmails();
     }
 
     public function testOpenNextUnreadEmailPositive(): void
     {
         $client = $this->buildClient();
-        $this->mailHog->setClient($client);
-        $this->mailHog->fetchEmails();
+        $this->mailpit->setClient($client);
+        $this->mailpit->fetchEmails();
 
-        $this->mailHog->openNextUnreadEmail();
+        $this->mailpit->openNextUnreadEmail();
 
-        self::assertEquals(json_decode(self::$singleMessageJson, false), $this->mailHog->getPropOpenedEmail());
+        self::assertEquals(json_decode(self::$singleMessageJson, false), $this->mailpit->getPropOpenedEmail());
     }
 
     public function testOpenNextUnreadEmailNegative(): void
     {
-        $this->mailHog->setUnreadInbox([]);
+        $this->mailpit->setUnreadInbox([]);
 
         $this->expectException(AssertionFailedError::class);
         $this->expectExceptionMessage('Unread Inbox is Empty');
 
-        $this->mailHog->openNextUnreadEmail();
+        $this->mailpit->openNextUnreadEmail();
     }
 
     public function testGrabHeaderFromOpenedEmail()
     {
         $client = $this->buildClient();
-        $this->mailHog->setClient($client);
-        $this->mailHog->fetchEmails();
-        $this->mailHog->openNextUnreadEmail();
+        $this->mailpit->setClient($client);
+        $this->mailpit->fetchEmails();
+        $this->mailpit->openNextUnreadEmail();
 
         self::assertSame(
             [0 => 'high'],
-            $this->mailHog->grabHeaderFromOpenedEmail('X-Priority')
+            $this->mailpit->grabHeaderFromOpenedEmail('X-Priority')
         );
     }
 
@@ -344,10 +344,10 @@ JSON;
             ],
         ];
 
-        $mailHog = new class ($mockContainer, $params) extends MailHog {
-            public function setClient(ClientInterface $mailhog): void
+        $this->mailpit = new class ($mockContainer, $params) extends Mailpit {
+            public function setClient(ClientInterface $mailpit): void
             {
-                $this->mailhog = $mailhog;
+                $this->mailpit = $mailpit;
             }
 
             public function getCurrentInbox(): array
@@ -370,9 +370,7 @@ JSON;
                 return $this->openedEmail;
             }
         };
-
-        $this->mailHog = $mailHog;
-        $this->mailHog->_initialize();
+        $this->mailpit->_initialize();
     }
 
     protected function buildClient(): MockObject&ClientInterface
