@@ -1,6 +1,6 @@
 {
-    "name": "oqq/codeception-email-mailhog",
-    "description": "Provides test helpers for Codeception when testing email functionality with MailHog",
+    "name": "koehnlein/codeception-email-mailpit",
+    "description": "Provides test helpers for Codeception when testing email functionality with Mailpit",
     "license": "MIT",
     "authors": [
         {
@@ -14,17 +14,21 @@
         {
             "name": "Eric Braun",
             "email": "eb@oqq.be"
+        },
+        {
+            "name": "Albrecht Köhnlein",
+            "email": "ak@koehnlein.eu"
         }
     ],
     "require": {
         "php": "8.1.* | 8.2.*",
         "ext-json": "*",
-        "ericmartel/codeception-email": "^1.0.3",
         "guzzlehttp/guzzle": "^6.1 | ^7.0"
     },
     "require-dev": {
         "codeception/codeception": "^5.0",
         "friendsofphp/php-cs-fixer": "^3.0",
+        "http-interop/http-factory-guzzle": "^1.2",
         "phpunit/phpunit": "^9.5",
         "roave/security-advisories": "dev-latest"
     },

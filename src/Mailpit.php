@@ -1,26 +1,15 @@
 <?php
 
-/*
- * This file is part of the Mailhog service provider for the Codeception Email Testing Framework.
- * (c) 2015-2016 Eric Martel
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Codeception\Module;
 
-use Codeception\Email\EmailServiceProvider;
-use Codeception\Email\TestsEmails;
 use Codeception\Module;
 use Codeception\TestInterface;
 use Exception;
 use GuzzleHttp\Client;
 
-class MailHog extends Module
+class Mailpit extends Module
 {
     use TestsEmails;
-    use EmailServiceProvider;
 
     /**
      * Codeception exposed variables.
@@ -39,9 +28,9 @@ class MailHog extends Module
     protected array $requiredFields = ['url', 'port'];
 
     /**
-     * HTTP Client to interact with MailHog.
+     * HTTP Client to interact with Mailpit.
      */
-    protected Client $mailhog;
+    protected Client $mailpit;
 
     /**
      * Raw email header data converted to JSON.
@@ -74,7 +63,7 @@ class MailHog extends Module
             }
         }
 
-        $this->mailhog = new Client($config);
+        $this->mailpit = new Client($config);
     }
 
     /**
@@ -97,8 +86,8 @@ class MailHog extends Module
         $this->fetchedEmails = [];
 
         try {
-            $response = $this->mailhog->request('GET', '/api/v1/messages');
-            $this->fetchedEmails = json_decode($response->getBody(), false);
+            $response = $this->mailpit->request('GET', '/api/v1/messages');
+            $this->fetchedEmails = json_decode($response->getBody(), false)->messages;
         } catch (Exception $e) {
             $this->fail('Exception: ' . $e->getMessage());
         }
@@ -120,15 +109,11 @@ class MailHog extends Module
         $inbox = [];
 
         foreach ($this->fetchedEmails as $email) {
-            if (strpos($email->Content->Headers->To[0], $address) !== false) {
-                $inbox[] = $email;
-            }
-
-            if (isset($email->Content->Headers->Cc) && in_array($address, $email->Content->Headers->Cc, true)) {
-                $inbox[] = $email;
-            }
-
-            if (isset($email->Content->Headers->Bcc) && in_array($address, $email->Content->Headers->Bcc, true)) {
+            if (
+                $this->findInNamesAndAddresses($email->To ?? [], $address)
+                || $this->findInNamesAndAddresses($email->Cc ?? [], $address)
+                || $this->findInNamesAndAddresses($email->Bcc ?? [], $address)
+            ) {
                 $inbox[] = $email;
             }
         }
@@ -147,7 +132,7 @@ class MailHog extends Module
         $inbox = [];
 
         foreach ($this->fetchedEmails as $email) {
-            if (strpos($email->Content->Headers->To[0], $address) !== false) {
+            if ($this->findInNamesAndAddresses($email->To ?? [], $address)) {
                 $inbox[] = $email;
             }
         }
@@ -166,7 +151,7 @@ class MailHog extends Module
         $inbox = [];
 
         foreach ($this->fetchedEmails as $email) {
-            if (isset($email->Content->Headers->Cc) && in_array($address, $email->Content->Headers->Cc, true)) {
+            if ($this->findInNamesAndAddresses($email->Cc ?? [], $address)) {
                 $inbox[] = $email;
             }
         }
@@ -185,7 +170,7 @@ class MailHog extends Module
         $inbox = [];
 
         foreach ($this->fetchedEmails as $email) {
-            if (isset($email->Content->Headers->Bcc) && in_array($address, $email->Content->Headers->Bcc, true)) {
+            if ($this->findInNamesAndAddresses($email->Bcc ?? [], $address)) {
                 $inbox[] = $email;
             }
         }
@@ -200,7 +185,7 @@ class MailHog extends Module
     public function deleteAllEmails(): void
     {
         try {
-            $this->mailhog->request('DELETE', '/api/v1/messages');
+            $this->mailpit->request('DELETE', '/api/v1/messages');
         } catch (Exception $e) {
             $this->fail('Exception: ' . $e->getMessage());
         }
@@ -214,6 +199,54 @@ class MailHog extends Module
     public function openNextUnreadEmail(): void
     {
         $this->openedEmail = $this->getMostRecentUnreadEmail();
+    }
+
+    /**
+     * Load headers, if not done yet and return the requested header
+     *
+     * @return null|array<string>
+     */
+    protected function getHeader(\stdClass $email, string $header): ?array
+    {
+        if (!isset($email->headers)) {
+            try {
+                $response = $this->mailpit->request('GET', "/api/v1/message/{$email->ID}/headers");
+                $email->headers = json_decode($response->getBody(), false);
+            } catch (Exception $e) {
+                $this->fail('Exception: ' . $e->getMessage());
+            }
+        }
+
+        return $email->headers->{$header} ?? null;
+    }
+
+    /**
+     * Find Address/Name item which contains the current search string
+     *
+     * @param array<\stdClass> $haystack
+     */
+    protected function findInNamesAndAddresses(array $haystack, string $needle): ?\stdClass
+    {
+        foreach ($haystack as $row) {
+            if ($row->Address === $needle || $row->Name === $needle) {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array<\stdClass> $namesAndAddresses
+     */
+    protected function namesAndAddressesToString(array $namesAndAddresses): string
+    {
+        return implode(', ', array_map(
+            function ($nameAndAddress) {
+                return sprintf('"%s" <%s>', $nameAndAddress->Name, $nameAndAddress->Address);
+            },
+            $namesAndAddresses
+        ));
     }
 
     /**
@@ -264,8 +297,7 @@ class MailHog extends Module
     protected function getFullEmail($id)
     {
         try {
-            $response = $this->mailhog->request('GET', "/api/v1/messages/{$id}");
-
+            $response = $this->mailpit->request('GET', "/api/v1/message/{$id}");
             return json_decode($response->getBody(), false);
         } catch (Exception $e) {
             $this->fail('Exception: ' . $e->getMessage());
@@ -283,7 +315,7 @@ class MailHog extends Module
      */
     protected function getEmailSubject($email): string
     {
-        return $this->getDecodedEmailProperty($email, $email->Content->Headers->Subject[0]);
+        return $email->Subject;
     }
 
     /**
@@ -295,9 +327,23 @@ class MailHog extends Module
      *
      * @return string Body
      */
-    protected function getEmailBody($email): string
+    protected function getEmailTextBody($email): string
     {
-        return $this->getDecodedEmailProperty($email, $email->Content->Body);
+        return $email->Text;
+    }
+
+    /**
+     * Get Email HTML Body.
+     *
+     * Returns the body of an email
+     *
+     * @param mixed $email Email
+     *
+     * @return string Body
+     */
+    protected function getEmailHtmlBody($email): string
+    {
+        return $email->HTML;
     }
 
     /**
@@ -311,7 +357,7 @@ class MailHog extends Module
      */
     protected function getEmailTo($email): string
     {
-        return $this->getDecodedEmailProperty($email, $email->Content->Headers->To[0]);
+        return $this->namesAndAddressesToString($email->To ?? []);
     }
 
     /**
@@ -325,12 +371,7 @@ class MailHog extends Module
      */
     protected function getEmailCC($email): string
     {
-        $emailCc = '';
-        if (isset($email->Content->Headers->Cc)) {
-            $emailCc = $this->getDecodedEmailProperty($email, $email->Content->Headers->Cc[0]);
-        }
-
-        return $emailCc;
+        return $this->namesAndAddressesToString($email->Cc ?? []);
     }
 
     /**
@@ -344,12 +385,7 @@ class MailHog extends Module
      */
     protected function getEmailBCC($email): string
     {
-        $emailBcc = '';
-        if (isset($email->Content->Headers->Bcc)) {
-            $emailBcc = $this->getDecodedEmailProperty($email, $email->Content->Headers->Bcc[0]);
-        }
-
-        return $emailBcc;
+        return $this->namesAndAddressesToString($email->Bcc ?? []);
     }
 
     /**
@@ -363,20 +399,11 @@ class MailHog extends Module
      */
     protected function getEmailRecipients($email): string
     {
-        $recipients = [];
-        if (isset($email->Content->Headers->To)) {
-            $recipients[] = $this->getEmailTo($email);
-        }
-        if (isset($email->Content->Headers->Cc)) {
-            $recipients[] = $this->getEmailCC($email);
-        }
-        if (isset($email->Content->Headers->Bcc)) {
-            $recipients[] = $this->getEmailBCC($email);
-        }
-
-        $recipients = implode(' ', $recipients);
-
-        return $recipients;
+        return implode(' ', [
+            $this->namesAndAddressesToString($email->To ?? []),
+            $this->namesAndAddressesToString($email->Cc ?? []),
+            $this->namesAndAddressesToString($email->Bcc ?? []),
+        ]);
     }
 
     /**
@@ -390,7 +417,7 @@ class MailHog extends Module
      */
     protected function getEmailSender($email): string
     {
-        return $this->getDecodedEmailProperty($email, $email->Content->Headers->From[0]);
+        return $this->namesAndAddressesToString([$email->From]);
     }
 
     /**
@@ -404,7 +431,7 @@ class MailHog extends Module
      */
     protected function getEmailReplyTo($email): string
     {
-        return $this->getDecodedEmailProperty($email, $email->Content->Headers->{'Reply-To'}[0]);
+        return $this->namesAndAddressesToString($email->ReplyTo ?? []);
     }
 
     /**
@@ -418,48 +445,7 @@ class MailHog extends Module
      */
     protected function getEmailPriority($email): string
     {
-        return $this->getDecodedEmailProperty($email, $email->Content->Headers->{'X-Priority'}[0]);
-    }
-
-    /**
-     * Returns the decoded email property.
-     *
-     * @param $email
-     * @param $property
-     *
-     * @return string
-     */
-    protected function getDecodedEmailProperty($email, $property): string
-    {
-        if ($property === '') {
-            return $property;
-        }
-
-        if (stripos($property, '=?utf-8?Q?') !== false) {
-            if (extension_loaded('iconv')) {
-                return iconv_mime_decode($property);
-            }
-            if (extension_loaded('mbstring')) {
-                return mb_decode_mimeheader($property);
-            }
-        }
-
-        if (!empty($email->Content->Headers->{'Content-Transfer-Encoding'}) && in_array(
-            'quoted-printable',
-            $email->Content->Headers->{'Content-Transfer-Encoding'},
-            true
-        )
-        ) {
-            return quoted_printable_decode($property);
-        }
-
-        if (!empty($email->Content->Headers->{'Content-Type'}[0]) &&
-            strpos($email->Content->Headers->{'Content-Type'}[0], 'multipart/mixed') !== false
-        ) {
-            return quoted_printable_decode($property);
-        }
-
-        return $property;
+        return $this->getHeader($email, 'X-Priority');
     }
 
     /**
@@ -523,8 +509,8 @@ class MailHog extends Module
      */
     protected static function sortEmailsByCreationDatePredicate($emailA, $emailB): int
     {
-        $sortKeyA = $emailA->Content->Headers->Date;
-        $sortKeyB = $emailB->Content->Headers->Date;
+        $sortKeyA = strtotime($emailA->Created);
+        $sortKeyB = strtotime($emailB->Created);
 
         return ($sortKeyA > $sortKeyB) ? -1 : 1;
     }
