@@ -85,16 +85,29 @@ trait TestsEmails
     }
 
     /**
-     * See In Opened Email Body
+     * See In Opened Email Plain Text Body
      *
-     * Validates that $expected can be found in the opened email body
+     * Validates that $expected can be found in the opened email text body
      *
      * @param string $expected Text
      */
-    public function seeInOpenedEmailBody($expected)
+    public function seeInOpenedEmailTextBody($expected)
     {
         $email = $this->getOpenedEmail();
-        $this->seeInEmailBody($email, $expected);
+        $this->seeInEmailTextBody($email, $expected);
+    }
+
+    /**
+     * See In Opened Email HTML Body
+     *
+     * Validates that $expected can be found in the opened email html body
+     *
+     * @param string $expected Text
+     */
+    public function seeInOpenedEmailHtmlBody($expected)
+    {
+        $email = $this->getOpenedEmail();
+        $this->seeInEmailHtmlBody($email, $expected);
     }
 
     /**
@@ -111,16 +124,29 @@ trait TestsEmails
     }
 
     /**
-     * Dont See In Opened Email Body
+     * Don't See In Opened Email Plain Text Body
      *
-     * Checks that $expected cannot be found in the opened email body
+     * Checks that $expected cannot be found in the opened email text body
      *
      * @param string $expected Text
      */
-    public function dontSeeInOpenedEmailBody($expected)
+    public function dontSeeInOpenedEmailTextBody($expected)
     {
         $email = $this->getOpenedEmail();
-        $this->dontSeeInEmailBody($email, $expected);
+        $this->dontSeeInEmailTextBody($email, $expected);
+    }
+
+    /**
+     * Don't See In Opened Email HTML Body
+     *
+     * Checks that $expected cannot be found in the opened email html body
+     *
+     * @param string $expected Text
+     */
+    public function dontSeeInOpenedEmailHtmlBody($expected)
+    {
+        $email = $this->getOpenedEmail();
+        $this->dontSeeInEmailHtmlBody($email, $expected);
     }
 
     /**
@@ -137,29 +163,55 @@ trait TestsEmails
     }
 
     /**
-     * See In Email Body
+     * See In Email Plain Text Body
      *
      * Checks that the body of $email contains $expected
      *
      * @param mixed $email a JSON encoded email
      * @param string $expected Text
      */
-    public function seeInEmailBody($email, $expected)
+    public function seeInEmailTextBody($email, $expected)
     {
-        $this->assertStringContainsString($expected, $this->getEmailBody($email), "Email Body Contains");
+        $this->assertStringContainsString($expected, $this->getEmailTextBody($email), "Email Plain Text Body Contains");
     }
 
     /**
-     * Dont See In Email Body
+     * See In Email HML Body
+     *
+     * Checks that the body of $email contains $expected
+     *
+     * @param mixed $email a JSON encoded email
+     * @param string $expected Text
+     */
+    public function seeInEmailHtmlBody($email, $expected)
+    {
+        $this->assertStringContainsString($expected, $this->getEmailHtmlBody($email), "Email HTML Body Contains");
+    }
+
+    /**
+     * Don't See In Email Plain Text Body
      *
      * Checks that the body of $email does not contain $expected
      *
      * @param mixed $email a JSON encoded email
      * @param string $expected Text
      */
-    public function dontSeeInEmailBody($email, $expected)
+    public function dontSeeInEmailTextBody($email, $expected)
     {
-        $this->assertStringNotContainsString($expected, $this->getEmailBody($email), "Email Body Doesn't Contain");
+        $this->assertStringNotContainsString($expected, $this->getEmailTextBody($email), "Email Plain Text Body Doesn't Contain");
+    }
+
+    /**
+     * Don't See In Email HTML Body
+     *
+     * Checks that the body of $email does not contain $expected
+     *
+     * @param mixed $email a JSON encoded email
+     * @param string $expected Text
+     */
+    public function dontSeeInEmailHtmlBody($email, $expected)
+    {
+        $this->assertStringNotContainsString($expected, $this->getEmailHtmlBody($email), "Email HTML Body Doesn't Contain");
     }
 
     /**
@@ -561,23 +613,21 @@ trait TestsEmails
     }
 
     /**
-     * @param string $content_type_alternative MIME-part Content-Type
-     * @return string Body
+     * Return plain text body from currently opened email
      */
-    public function grabBodyFromEmail($content_type_alternative = null)
+    public function grabTextBodyFromEmail(): string
     {
         $email = $this->getOpenedEmail();
+        return $email->Text ?? '';
+    }
 
-        if (isset($content_type_alternative)) {
-            foreach ($email->MIME->Parts as $part) {
-                if (!empty($part->Headers->{'Content-Type'}[0]) &&
-                    strpos($part->Headers->{'Content-Type'}[0], $content_type_alternative) !== false) {
-                    return $this->getDecodedEmailProperty($part, $part->Body);  //return first entry
-                }
-            }
-            return null;                                                        //not found
-        }
-        return $this->getDecodedEmailProperty($email, $email->Content->Body);   //return full email
+    /**
+     * Return HTML body from currently opened email
+     */
+    public function grabHtmlBodyFromEmail(): string
+    {
+        $email = $this->getOpenedEmail();
+        return $email->HTML ?? '';
     }
 }
 

@@ -304,9 +304,23 @@ class MailHog extends Module
      *
      * @return string Body
      */
-    protected function getEmailBody($email): string
+    protected function getEmailTextBody($email): string
     {
-        return $this->getDecodedEmailProperty($email, $email->Content->Body);
+        return $email->Text;
+    }
+
+    /**
+     * Get Email HTML Body.
+     *
+     * Returns the body of an email
+     *
+     * @param mixed $email Email
+     *
+     * @return string Body
+     */
+    protected function getEmailHtmlBody($email): string
+    {
+        return $email->HTML;
     }
 
     /**

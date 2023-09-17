@@ -74,7 +74,8 @@ $I->dontHaveUnreadEmails();
 
 // Validate the content of the opened email, all of these operations are performed on the same email
 $I->seeInOpenedEmailSubject('Your Password Reset Link');
-$I->seeInOpenedEmailBody('Follow this link to reset your password');
+$I->seeInOpenedEmailTextBody('Follow this link to reset your password');
+$I->seeInOpenedEmailHtmlBody('<a href="https://www.example.org/">Follow this link to reset your password</a>');
 $I->seeInOpenedEmailRecipients('testuser@example.com');
 ```
 
