@@ -25,6 +25,7 @@
     "require-dev": {
         "codeception/codeception": "^5.0",
         "friendsofphp/php-cs-fixer": "^3.0",
+        "http-interop/http-factory-guzzle": "^1.2",
         "phpunit/phpunit": "^9.5",
         "roave/security-advisories": "dev-latest"
     },

@@ -98,7 +98,7 @@ class MailHog extends Module
 
         try {
             $response = $this->mailhog->request('GET', '/api/v1/messages');
-            $this->fetchedEmails = json_decode($response->getBody(), false);
+            $this->fetchedEmails = json_decode($response->getBody(), false)->messages;
         } catch (Exception $e) {
             $this->fail('Exception: ' . $e->getMessage());
         }
@@ -120,15 +120,11 @@ class MailHog extends Module
         $inbox = [];
 
         foreach ($this->fetchedEmails as $email) {
-            if (strpos($email->Content->Headers->To[0], $address) !== false) {
-                $inbox[] = $email;
-            }
-
-            if (isset($email->Content->Headers->Cc) && in_array($address, $email->Content->Headers->Cc, true)) {
-                $inbox[] = $email;
-            }
-
-            if (isset($email->Content->Headers->Bcc) && in_array($address, $email->Content->Headers->Bcc, true)) {
+            if (
+                $this->findInNamesAndAddresses($email->To ?? [], $address)
+                || $this->findInNamesAndAddresses($email->Cc ?? [], $address)
+                || $this->findInNamesAndAddresses($email->Bcc ?? [], $address)
+            ) {
                 $inbox[] = $email;
             }
         }
@@ -147,7 +143,7 @@ class MailHog extends Module
         $inbox = [];
 
         foreach ($this->fetchedEmails as $email) {
-            if (strpos($email->Content->Headers->To[0], $address) !== false) {
+            if ($this->findInNamesAndAddresses($email->To ?? [], $address)) {
                 $inbox[] = $email;
             }
         }
@@ -166,7 +162,7 @@ class MailHog extends Module
         $inbox = [];
 
         foreach ($this->fetchedEmails as $email) {
-            if (isset($email->Content->Headers->Cc) && in_array($address, $email->Content->Headers->Cc, true)) {
+            if ($this->findInNamesAndAddresses($email->Cc ?? [], $address)) {
                 $inbox[] = $email;
             }
         }
@@ -185,7 +181,7 @@ class MailHog extends Module
         $inbox = [];
 
         foreach ($this->fetchedEmails as $email) {
-            if (isset($email->Content->Headers->Bcc) && in_array($address, $email->Content->Headers->Bcc, true)) {
+            if ($this->findInNamesAndAddresses($email->Bcc ?? [], $address)) {
                 $inbox[] = $email;
             }
         }
@@ -214,6 +210,22 @@ class MailHog extends Module
     public function openNextUnreadEmail(): void
     {
         $this->openedEmail = $this->getMostRecentUnreadEmail();
+    }
+
+    /**
+     * Find Address/Name item which contains the current search string
+     *
+     * @param array<\stdClass> $haystack
+     */
+    protected function findInNamesAndAddresses(array $haystack, string $needle): ?\stdClass
+    {
+        foreach ($haystack as $row) {
+            if ($row->Address === $needle || $row->Name === $needle) {
+                return $row;
+            }
+        }
+
+        return null;
     }
 
     /**
