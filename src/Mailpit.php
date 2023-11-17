@@ -13,8 +13,10 @@ class Mailpit extends Module
 
     /**
      * Codeception exposed variables.
+     *
+     * @var array<string>
      */
-    protected array $config = [
+    protected $config = [
         'url',
         'port',
         'guzzleRequestOptions',
@@ -24,8 +26,10 @@ class Mailpit extends Module
 
     /**
      * Codeception required variables.
+     *
+     * @var array<string>
      */
-    protected array $requiredFields = ['url', 'port'];
+    protected $requiredFields = ['url', 'port'];
 
     /**
      * HTTP Client to interact with Mailpit.
