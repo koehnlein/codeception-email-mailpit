@@ -46,6 +46,10 @@ Filters emails to only keep those that are received by the provided address
 openNextUnreadEmail()
 ```
 Pops the most recent unread email and assigns it as the email to conduct tests on
+```
+openNextAttachmentInOpenedEmail()
+```
+Pops the next attachment and assigns it as the attachment to conduct tests on
 
 ### Example Test
 Here is a simple scenario where we test the content of an email.  For a detailed list of all available test methods, please refer to the [Codeception Email Testing Framework][CodeceptionEmailTestingFramework].
@@ -82,5 +86,17 @@ $I->seeInOpenedEmailSubject('Your Password Reset Link');
 $I->seeInOpenedEmailTextBody('Follow this link to reset your password');
 $I->seeInOpenedEmailHtmlBody('<a href="https://www.example.org/">Follow this link to reset your password</a>');
 $I->seeInOpenedEmailRecipients('testuser@example.com');
+
+// Validate if email has attachments
+$I->haveAttachmentsInOpenedEmail();
+
+// Open next attachment
+$I->openNextAttachmentInOpenedEmail();
+
+// Validate metadata of the attachment
+$I->seeInFilenameOfOpenedAttachment();
+$I->grabFilenameFromOpenedAttachment();
+$I->grabContentTypeFromOpenedAttachment();
+$I->grabSizeFromOpenedAttachment();
 ```
 

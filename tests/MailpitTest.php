@@ -103,7 +103,70 @@ JSON;
     "HTML": "\u003cbody\u003eHTML Text\u003c/body\u003e",
     "Size": 1886,
     "Inline": [],
+    "Attachments": [
+        {
+            "PartID": "2",
+            "FileName": "dummy.png",
+            "ContentType": "image/png",
+            "ContentID": "",
+            "Size": 1575
+        }
+    ]
+}
+JSON;
+
+    private static $singleMessageWithoutAttachmentsJson = <<<JSON
+{
+    "ID": "fc5666d2-b7f2-4c53-a213-75029127887a",
+    "MessageID": "fd791a87dace8d118813757450302242@test.com",
+    "Read": true,
+    "From": {
+        "Name": "Jane Smith",
+        "Address": "from@test.com"
+    },
+    "To": [
+        {
+            "Name": "John Doe",
+            "Address": "to@test.com"
+        }
+    ],
+    "Cc": [
+        {
+            "Name": "Carbon Copy",
+            "Address": "carbon@copy.ru"
+        }
+    ],
+    "Bcc": [
+        {
+            "Name": "",
+            "Address": "blind-carbon@copy.ru"
+        }
+    ],
+    "ReplyTo": [
+        {
+            "Name": "Reply To",
+            "Address": "reply-to@test.com"
+        }
+    ],
+    "ReturnPath": "from@test.com",
+    "Subject": "An email",
+    "Date": "2023-09-16T19:18:33Z",
+    "Tags": [],
+    "Text": "Plain Text",
+    "HTML": "\u003cbody\u003eHTML Text\u003c/body\u003e",
+    "Size": 1886,
+    "Inline": [],
     "Attachments": []
+}
+JSON;
+
+    private static $singleAttachmentJson = <<<JSON
+{
+    "PartID": "2",
+    "FileName": "dummy.png",
+    "ContentType": "image/png",
+    "ContentID": "",
+    "Size": 1575
 }
 JSON;
 
@@ -315,6 +378,28 @@ JSON;
         $this->mailpit->openNextUnreadEmail();
     }
 
+    public function testOpenNextAttachmentInOpenedEmailPositive(): void
+    {
+        $client = $this->buildClient();
+        $this->mailpit->setClient($client);
+        $this->mailpit->fetchEmails();
+        $this->mailpit->openNextUnreadEmail();
+
+        $this->mailpit->openNextAttachmentInOpenedEmail();
+
+        self::assertEquals(json_decode(self::$singleAttachmentJson, false), $this->mailpit->getPropOpenedAttachment());
+    }
+
+    public function testOpenNextAttachmentInOpenedEmailNegative(): void
+    {
+        $this->mailpit->setOpenedEmail(json_decode(self::$singleMessageWithoutAttachmentsJson, false));
+
+        $this->expectException(AssertionFailedError::class);
+        $this->expectExceptionMessage('No attachments in opened email');
+
+        $this->mailpit->openNextAttachmentInOpenedEmail();
+    }
+
     public function testGrabHeaderFromOpenedEmail()
     {
         $client = $this->buildClient();
@@ -365,9 +450,19 @@ JSON;
                 $this->unreadInbox = $inbox;
             }
 
+            public function setOpenedEmail($openedEmail): void
+            {
+                $this->openedEmail = $openedEmail;
+            }
+
             public function getPropOpenedEmail()
             {
                 return $this->openedEmail;
+            }
+
+            public function getPropOpenedAttachment()
+            {
+                return $this->openedAttachment;
             }
         };
         $this->mailpit->_initialize();

@@ -52,6 +52,11 @@ class Mailpit extends Module
      */
     protected mixed $openedEmail;
 
+    /**
+     * Contains the currently open attachment on the currently opened email.
+     */
+    protected mixed $openedAttachment;
+
     public function _initialize(): void
     {
         $url = trim($this->config['url'], '/') . ':' . $this->config['port'];
@@ -202,6 +207,16 @@ class Mailpit extends Module
     }
 
     /**
+     * Open next attachment in opened email.
+     *
+     * Pops the next attachment and assigns it as the attachment to conduct tests on
+     */
+    public function openNextAttachmentInOpenedEmail(): void
+    {
+        $this->openedAttachment = $this->getNextAttachmentInOpenedEmail();
+    }
+
+    /**
      * Load headers, if not done yet and return the requested header
      *
      * @return null|array<string>
@@ -265,6 +280,15 @@ class Mailpit extends Module
         }
 
         return $this->openedEmail;
+    }
+
+    protected function getOpenedAttachment(bool $fetchNextAttachment = false): mixed
+    {
+        if ($fetchNextAttachment || $this->openedAttachment === null) {
+            $this->openNextAttachmentInOpenedEmail();
+        }
+
+        return $this->openedAttachment;
     }
 
     /**
@@ -483,6 +507,18 @@ class Mailpit extends Module
     protected function getUnreadInbox(): array
     {
         return $this->unreadInbox;
+    }
+
+    protected function getNextAttachmentInOpenedEmail(): mixed
+    {
+        if ($this->openedEmail === null) {
+            $this->fail('No email is opened');
+        }
+        if ($this->openedEmail->Attachments === []) {
+            $this->fail('No attachments in opened email');
+        }
+
+        return array_shift($this->openedEmail->Attachments);
     }
 
     /**

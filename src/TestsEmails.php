@@ -4,7 +4,6 @@ namespace Codeception\Module;
 
 // todo:
 // text & html content
-// attachments
 
 trait TestsEmails
 {
@@ -578,6 +577,122 @@ trait TestsEmails
         $email = $this->getOpenedEmail();
         return $this->getHeader($email, $header);
     }
-}
 
-;
+    /**
+     * Assert opened email does not have attachments.
+     */
+    public function dontHaveAttachmentsInOpenedEmail(): void
+    {
+        $email = $this->getOpenedEmail();
+        $this->assertSame([], $email->Attachments ?? []);
+    }
+
+    /**
+     * Assert opened email has attachments.
+     */
+    public function haveAttachmentsInOpenedEmail(): void
+    {
+        $email = $this->getOpenedEmail();
+        $this->assertNotEmpty($email->Attachments ?? []);
+    }
+
+    /**
+     * Assert number of attachments in opened email matches expected size.
+     */
+    public function haveNumberOfAttachmentsInOpenedEmail(int $expected): void
+    {
+        $email = $this->getOpenedEmail();
+        $this->assertCount($expected, $email->Attachments ?? []);
+    }
+
+    /**
+     * Assert given JSON-decoded email does not have attachments.
+     */
+    public function dontHaveAttachmentsInEmail(mixed $email): void
+    {
+        $this->assertSame([], $email->Attachments ?? []);
+    }
+
+    /**
+     * Assert given JSON-decoded email has attachments.
+     */
+    public function haveAttachmentsInEmail(mixed $email): void
+    {
+        $this->assertNotEmpty($email->Attachments ?? []);
+    }
+
+    /**
+     * Assert number of attachments in given JSON-decoded email matches expected size.
+     */
+    public function haveNumberOfAttachmentsInEmail(mixed $email, int $expected): void
+    {
+        $this->assertCount($expected, $email->Attachments ?? []);
+    }
+
+    /**
+     * Assert filename of currently opened attachment in opened email contains $expected.
+     */
+    public function seeInFilenameOfOpenedAttachment(string $expected): void
+    {
+        $this->assertStringContainsString($expected, $this->grabFilenameFromOpenedAttachment());
+    }
+
+    /**
+     * Assert filename of given JSON-decoded attachment contains $expected.
+     */
+    public function seeInFilenameOfAttachment(mixed $attachment, string $expected): void
+    {
+        $this->assertStringContainsString($expected, $this->grabFilenameFromAttachment($attachment));
+    }
+
+    /**
+     * Return filename of currently opened attachment in opened email.
+     */
+    public function grabFilenameFromOpenedAttachment(): string
+    {
+        $attachment = $this->getOpenedAttachment();
+        return $attachment->FileName;
+    }
+
+    /**
+     * Return content-type of currently opened attachment in opened email.
+     */
+    public function grabContentTypeFromOpenedAttachment(): string
+    {
+        $attachment = $this->getOpenedAttachment();
+        return $attachment->ContentType;
+    }
+
+    /**
+     * Return size of currently opened attachment in opened email.
+     */
+    public function grabSizeFromOpenedAttachment(): int
+    {
+        $attachment = $this->getOpenedAttachment();
+        return $attachment->Size;
+    }
+
+    /**
+     * Return filename of given JSON-decoded attachment.
+     */
+    public function grabFilenameFromAttachment(mixed $attachment): string
+    {
+        return $attachment->FileName;
+    }
+
+    /**
+     * Return content-type of given JSON-decoded attachment.
+     */
+    public function grabContentTypeFromAttachment(mixed $attachment): string
+    {
+        return $attachment->ContentType;
+    }
+
+    /**
+     * Return size of given JSON-decoded attachment.
+     */
+    public function grabSizeFromAttachment(mixed $attachment): int
+    {
+        return $attachment->Size;
+    }
+}
