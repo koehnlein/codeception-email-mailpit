@@ -23,7 +23,7 @@
     "require": {
         "php": "~8.1.0 || ~8.2.0 || ~8.3.0",
         "ext-json": "*",
-        "codeception/codeception": "^4.0",
+        "codeception/codeception": "^5.0",
         "guzzlehttp/guzzle": "^6.1 || ^7.0"
     },
     "require-dev": {
