@@ -9,7 +9,7 @@ This codeception module is based on [oqq/codeception-email-mailhog](https://gith
 (wich is a fork of [ericmartel/codeception-email-mailhog](https://github.com/ericmartel/codeception-email-mailhog)) and
 brings nearly the same functionality for Mailpit as the mentioned modules did for MailHog.
 
-### Installation
+## Installation
 Through composer, require the package:
 ```
 composer req koehnlein/codeception-email-mailpit --dev
@@ -28,7 +28,7 @@ modules:
 Additional parameters can be fed directly to the Guzzle connection using the `guzzleRequestOptions` variable.
 
 The variable `deleteEmailsAfterScenario` can be set to true to ensure that all emails are deleted at the end of each scenario, but it is turned off by default.
-### Added Methods
+## Added Methods
 This Module adds a few public methods for the user, such as:
 ```
 deleteAllEmails()
@@ -51,7 +51,7 @@ openNextAttachmentInOpenedEmail()
 ```
 Pops the next attachment and assigns it as the attachment to conduct tests on
 
-### Example Test
+## Example Test
 Here is a simple scenario where we test the content of an email.  For a detailed list of all available test methods, please refer to the [Codeception Email Testing Framework][CodeceptionEmailTestingFramework].
 ```
 <?php
@@ -100,3 +100,16 @@ $I->grabContentTypeFromOpenedAttachment();
 $I->grabSizeFromOpenedAttachment();
 ```
 
+## Upgrade from MailHog Codeception Module
+
+1) Remove old MailHog module:
+   ```ddev composer remove oqq/codeception-email-mailhog --dev```
+   or
+   ```ddev composer remove ericmartal/codeception-email-mailhog --dev```
+   depending on which one is currently installed.
+2) Add new Mailpit module instead
+   ```ddev composer req koehnlein/codeception-email-mailpit --dev```
+3) Update Codeception configuration:
+   Change module name in Codeception configuration file(s) from `MailHog` to `Mailpit`.
+4) Refactor your Cests:
+   Search for all `$I->...EmailBody(...)` occurrences and refactor to `$I->...EmailTextBody(...)` and/or `$I->...EmailHtmlBody(...)`
