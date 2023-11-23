@@ -102,14 +102,19 @@ $I->grabSizeFromOpenedAttachment();
 
 ## Upgrade from MailHog Codeception Module
 
-1) Remove old MailHog module:
-   ```ddev composer remove oqq/codeception-email-mailhog --dev```
-   or
-   ```ddev composer remove ericmartal/codeception-email-mailhog --dev```
-   depending on which one is currently installed.
-2) Add new Mailpit module instead
+### Remove old MailHog module:
+```ddev composer remove oqq/codeception-email-mailhog --dev```
+or
+```ddev composer remove ericmartal/codeception-email-mailhog --dev```
+depending on which one is currently installed.
+
+### Add new Mailpit module instead
    ```ddev composer req koehnlein/codeception-email-mailpit --dev```
-3) Update Codeception configuration:
-   Change module name in Codeception configuration file(s) from `MailHog` to `Mailpit`.
-4) Refactor your Cests:
-   Search for all `$I->...EmailBody(...)` occurrences and refactor to `$I->...EmailTextBody(...)` and/or `$I->...EmailHtmlBody(...)`
+   
+### Update Codeception configuration:
+Change module name in Codeception configuration file(s) from `MailHog` to `Mailpit`.
+
+### Refactor your Cests:
+
+- Search for all `$I->...EmailBody(...)` occurrences and refactor to `$I->...EmailTextBody(...)` and/or `$I->...EmailHtmlBody(...)`
+- The name in `$I->canSeeInOpenedEmailSender` is now encapsulated in double quotes. So if you used `$I->canSeeInOpenedEmailSender('My Name <i@me.invalid>')` before replace it with $I->canSeeInOpenedEmailSender('"My Name" <i@me.invalid>');
