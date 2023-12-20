@@ -11,11 +11,11 @@ brings nearly the same functionality for Mailpit as the mentioned modules did fo
 
 ## Installation
 Through composer, require the package:
-```
+```shell
 composer req koehnlein/codeception-email-mailpit --dev
 ```
 Then turn it on in your Codeception suite yaml file
-```
+```yaml
 class_name: FunctionalTester
 modules:
     enabled:
@@ -31,30 +31,30 @@ The variable `deleteEmailsAfterScenario` can be set to true to ensure that all e
 
 ## Added Methods
 This Module adds a few public methods for the user, such as:
-```
+```php
 deleteAllEmails()
 ```
 Deletes all emails in Mailpit
-```
+```php
 fetchEmails()
 ```
 Fetches all email headers from Mialpit, sorts them by timestamp and assigns them to the current and unread inboxes
-```
+```php
 accessInboxFor($address)
 ```
 Filters emails to only keep those that are received by the provided address
-```
+```php
 openNextUnreadEmail()
 ```
 Pops the most recent unread email and assigns it as the email to conduct tests on
-```
+```php
 openNextAttachmentInOpenedEmail()
 ```
 Pops the next attachment and assigns it as the attachment to conduct tests on
 
 ## Example Test
 Here is a simple scenario where we test the content of an email.  For a detailed list of all available test methods, please refer to the [Codeception Email Testing Framework][CodeceptionEmailTestingFramework].
-```
+```php
 <?php
 $I = new FunctionalTester($scenario);
 $I->am('a member');
@@ -106,17 +106,17 @@ In case you want to switch from `codeception-email-mailhog` to this module, you 
 
 ### Remove old MailHog module
 Depending on which fork of `codeception-email-mailhog` you have installed, you can uninstall it with
-```
+```shell
 composer remove oqq/codeception-email-mailhog --dev
 ```
 or
-```
+```shell
 composer remove ericmartal/codeception-email-mailhog --dev
 ```
 or maybe any other package name of the fork, you use.
 
 ### Add new Mailpit module instead
-```
+```shell
 composer req koehnlein/codeception-email-mailpit --dev
 ```
    
