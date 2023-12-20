@@ -9,13 +9,13 @@ This codeception module is based on [oqq/codeception-email-mailhog](https://gith
 (wich is a fork of [ericmartel/codeception-email-mailhog](https://github.com/ericmartel/codeception-email-mailhog)) and
 brings nearly the same functionality for Mailpit as the mentioned modules did for MailHog.
 
-### Installation
+## Installation
 Through composer, require the package:
-```
+```shell
 composer req koehnlein/codeception-email-mailpit --dev
 ```
 Then turn it on in your Codeception suite yaml file
-```
+```yaml
 class_name: FunctionalTester
 modules:
     enabled:
@@ -28,32 +28,33 @@ modules:
 Additional parameters can be fed directly to the Guzzle connection using the `guzzleRequestOptions` variable.
 
 The variable `deleteEmailsAfterScenario` can be set to true to ensure that all emails are deleted at the end of each scenario, but it is turned off by default.
-### Added Methods
+
+## Added Methods
 This Module adds a few public methods for the user, such as:
-```
+```php
 deleteAllEmails()
 ```
 Deletes all emails in Mailpit
-```
+```php
 fetchEmails()
 ```
 Fetches all email headers from Mialpit, sorts them by timestamp and assigns them to the current and unread inboxes
-```
+```php
 accessInboxFor($address)
 ```
 Filters emails to only keep those that are received by the provided address
-```
+```php
 openNextUnreadEmail()
 ```
 Pops the most recent unread email and assigns it as the email to conduct tests on
-```
+```php
 openNextAttachmentInOpenedEmail()
 ```
 Pops the next attachment and assigns it as the attachment to conduct tests on
 
-### Example Test
+## Example Test
 Here is a simple scenario where we test the content of an email.  For a detailed list of all available test methods, please refer to the [Codeception Email Testing Framework][CodeceptionEmailTestingFramework].
-```
+```php
 <?php
 $I = new FunctionalTester($scenario);
 $I->am('a member');
@@ -100,3 +101,29 @@ $I->grabContentTypeFromOpenedAttachment();
 $I->grabSizeFromOpenedAttachment();
 ```
 
+## Migrate from MailHog Codeception Module
+In case you want to switch from `codeception-email-mailhog` to this module, you need to follow these small steps:  
+
+### Remove old MailHog module
+Depending on which fork of `codeception-email-mailhog` you have installed, you can uninstall it with
+```shell
+composer remove oqq/codeception-email-mailhog --dev
+```
+or
+```shell
+composer remove ericmartal/codeception-email-mailhog --dev
+```
+or maybe any other package name of the fork, you use.
+
+### Add new Mailpit module instead
+```shell
+composer req koehnlein/codeception-email-mailpit --dev
+```
+   
+### Update Codeception configuration:
+Change module name in Codeception configuration file(s) from `MailHog` to `Mailpit`.
+
+### Refactor your Cests:
+
+* Search for all `$I->...EmailBody(...)` occurrences and refactor to `$I->...EmailTextBody(...)` and/or `$I->...EmailHtmlBody(...)`
+* The name in `$I->canSeeInOpenedEmailSender` is now encapsulated in double quotes. So if you used `$I->canSeeInOpenedEmailSender('My Name <me@example.org>')` before replace it with `$I->canSeeInOpenedEmailSender('"My Name" <me@example.org>');`
