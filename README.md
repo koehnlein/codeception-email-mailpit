@@ -28,6 +28,7 @@ modules:
 Additional parameters can be fed directly to the Guzzle connection using the `guzzleRequestOptions` variable.
 
 The variable `deleteEmailsAfterScenario` can be set to true to ensure that all emails are deleted at the end of each scenario, but it is turned off by default.
+
 ## Added Methods
 This Module adds a few public methods for the user, such as:
 ```
@@ -100,21 +101,29 @@ $I->grabContentTypeFromOpenedAttachment();
 $I->grabSizeFromOpenedAttachment();
 ```
 
-## Upgrade from MailHog Codeception Module
+## Migrate from MailHog Codeception Module
+In case you want to switch from `codeception-email-mailhog` to this module, you need to follow these small steps:  
 
-### Remove old MailHog module:
-```ddev composer remove oqq/codeception-email-mailhog --dev```
+### Remove old MailHog module
+Depending on which fork of `codeception-email-mailhog` you have installed, you can uninstall it with
+```
+composer remove oqq/codeception-email-mailhog --dev
+```
 or
-```ddev composer remove ericmartal/codeception-email-mailhog --dev```
-depending on which one is currently installed.
+```
+composer remove ericmartal/codeception-email-mailhog --dev
+```
+or maybe any other package name of the fork, you use.
 
 ### Add new Mailpit module instead
-   ```ddev composer req koehnlein/codeception-email-mailpit --dev```
+```
+composer req koehnlein/codeception-email-mailpit --dev
+```
    
 ### Update Codeception configuration:
 Change module name in Codeception configuration file(s) from `MailHog` to `Mailpit`.
 
 ### Refactor your Cests:
 
-- Search for all `$I->...EmailBody(...)` occurrences and refactor to `$I->...EmailTextBody(...)` and/or `$I->...EmailHtmlBody(...)`
-- The name in `$I->canSeeInOpenedEmailSender` is now encapsulated in double quotes. So if you used `$I->canSeeInOpenedEmailSender('My Name <i@me.invalid>')` before replace it with $I->canSeeInOpenedEmailSender('"My Name" <i@me.invalid>');
+* Search for all `$I->...EmailBody(...)` occurrences and refactor to `$I->...EmailTextBody(...)` and/or `$I->...EmailHtmlBody(...)`
+* The name in `$I->canSeeInOpenedEmailSender` is now encapsulated in double quotes. So if you used `$I->canSeeInOpenedEmailSender('My Name <i@me.invalid>')` before replace it with $I->canSeeInOpenedEmailSender('"My Name" <i@me.invalid>');
