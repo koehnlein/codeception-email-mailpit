@@ -1,6 +1,6 @@
 # Mailpit Module for the Codeception Testing Framework
 
-This codeception module can be used to run tests against your [Mailpit](https://github.com/axllent/mailpit) instance.
+This [Codeception](https://codeception.com/) module can be used to run tests against your [Mailpit](https://github.com/axllent/mailpit) instance.
 
 Mailpit was inspired by MailHog, which is not developed anymore. Because it is not a 1:1 replacement, the API changed
 and existing MailHog codeception modules cannot be used anymore.
@@ -10,19 +10,18 @@ This codeception module is based on [oqq/codeception-email-mailhog](https://gith
 brings nearly the same functionality for Mailpit as the mentioned modules did for MailHog.
 
 ## Installation
-Through composer, require the package:
+With Composer:
 ```shell
-composer req koehnlein/codeception-email-mailpit --dev
+composer require koehnlein/codeception-email-mailpit --dev
 ```
-Then turn it on in your Codeception suite yaml file
+Then enable it in your `Functional.suire.yml`:
 ```yaml
-class_name: FunctionalTester
 modules:
     enabled:
         - Mailpit
     config:
         Mailpit:
-            url: 'http://mailpit.dev'
+            url: 'http://localhost'
             port: '8025'
 ```
 Additional parameters can be fed directly to the Guzzle connection using the `guzzleRequestOptions` variable.
