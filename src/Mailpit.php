@@ -35,17 +35,17 @@ class Mailpit extends Module
     /**
      * Raw email header data converted to JSON.
      */
-    protected array $fetchedEmails;
+    protected array $fetchedEmails = [];
 
     /**
      * Currently selected set of email headers to work with.
      */
-    protected array $currentInbox;
+    protected array $currentInbox = [];
 
     /**
      * Starts as the same data as the current inbox, but items are removed as they're used.
      */
-    protected array $unreadInbox;
+    protected array $unreadInbox = [];
 
     /**
      * Contains the currently open email on which test operations are conducted.
