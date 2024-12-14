@@ -14,7 +14,7 @@ With Composer:
 ```shell
 composer require koehnlein/codeception-email-mailpit --dev
 ```
-Then enable it in your `Functional.suire.yml`:
+Then enable it in your `Functional.suite.yml` or `Acceptance.suite.yml`:
 ```yaml
 modules:
     enabled:
